@@ -2,6 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
+// Reminder: to upload a new version, do the following:
+// 1. Make sure that everything works (incl. manual checks using sample app)
+// 2. Update library version identifiers (libraryVersion, versionName, versionCode)
+// 3. Run "install" gradle task in dialoghelper module (under "other")
+// 4. Run "bintrayUpload" gradle task in dialoghelper module (under "publishing")
+
 ext {
 
     bintrayRepo = "DialogHelper"
@@ -37,6 +43,11 @@ android {
         versionCode 1
         versionName "0.7.0"
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+    }
+
     buildTypes {
         release {
             minifyEnabled false
