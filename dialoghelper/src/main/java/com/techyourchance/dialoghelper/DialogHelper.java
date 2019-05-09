@@ -7,13 +7,13 @@ import android.support.annotation.UiThread;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.text.TextUtils;
 
 /**
- * Instances of this class make it easy to manage dialogs in the application.<br>
+ * Instances of this class simplify dialogs management in the application.<br>
  * You can have a single instance of this class in your application, or you can have multiple instances
- * (e.g. one instance per Activity or Fragment). Both ways are safe, as long as you show ALL your dialogs
- * using DialogHelper.
+ * (e.g. one instance per Activity or Fragment). This class will work seamlessly in all setups and the state will
+ * be preserved across both configuration change and save & restore (aka. process death),
+ * as long as you show ALL your dialogs using DialogHelper.
  */
 @UiThread
 public class DialogHelper {
@@ -22,7 +22,7 @@ public class DialogHelper {
      * Whenever DialogHelper shows dialog with non-empty "id", the provided id will be stored in
      * arguments Bundle of the dialog under this key.
      */
-    public static final String ARGUMENT_DIALOG_ID = "com.techyourchance.dialoghelper.ARGUMENT_DIALOG_ID";
+    private static final String ARGUMENT_DIALOG_ID = "com.techyourchance.dialoghelper.ARGUMENT_DIALOG_ID";
 
     /**
      * In case there will be multiple instances of DialogHelper, or Activity or Fragment that instantiated this
@@ -42,7 +42,7 @@ public class DialogHelper {
     /**
      * Get a reference to the currently shown dialog. This method assumes that the dialog was shown using
      * DialogHelper.
-     * @return a reference to currently shown dialog, or null if no dialog is shown.
+     * @return a reference to the currently shown dialog, or null if no dialog is shown.
      */
     public @Nullable DialogFragment getCurrentlyShownDialog() {
         Fragment fragmentWithDialogTag = mFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG);
@@ -81,18 +81,6 @@ public class DialogHelper {
         } else {
             return dialog.getArguments().getString(ARGUMENT_DIALOG_ID);
         }
-    }
-
-    /**
-     * Check whether a dialog with a specified id is currently shown. This method assumes that the dialog
-     * was shown using DialogHelper.
-     * @param id dialog id to query
-     * @return true if a dialog with the given id is currently shown; false if no dialog is shown, or the
-     *          shown dialog has no ID, or the shown dialog has different ID
-     */
-    public boolean isDialogCurrentlyShown(@NonNull String id) {
-        String shownDialogId = getCurrentlyShownDialogId();
-        return !TextUtils.isEmpty(shownDialogId) && id.equals(shownDialogId);
     }
 
     /**
