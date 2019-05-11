@@ -1,12 +1,9 @@
 package com.techyourchance.dialoghelpersample.promptdialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.view.View;
 
 import com.techyourchance.dialoghelper.DialogHelper;
@@ -20,10 +17,10 @@ import org.greenrobot.eventbus.EventBus;
  */
 public class PromptDialog extends BaseDialog {
 
-    private static final String ARG_TITLE = "ARG_TITLE";
-    private static final String ARG_MESSAGE = "ARG_MESSAGE";
-    private static final String ARG_POSITIVE_BUTTON_CAPTION = "ARG_POSITIVE_BUTTON_CAPTION";
-    private static final String ARG_NEGATIVE_BUTTON_CAPTION = "ARG_NEGATIVE_BUTTON_CAPTION";
+    protected static final String ARG_TITLE = "ARG_TITLE";
+    protected static final String ARG_MESSAGE = "ARG_MESSAGE";
+    protected static final String ARG_POSITIVE_BUTTON_CAPTION = "ARG_POSITIVE_BUTTON_CAPTION";
+    protected static final String ARG_NEGATIVE_BUTTON_CAPTION = "ARG_NEGATIVE_BUTTON_CAPTION";
 
     public static PromptDialog newPromptDialog(String title, String message, String positiveButtonCaption, String negativeButtonCaption) {
         PromptDialog promptDialog = new PromptDialog();
@@ -36,11 +33,11 @@ public class PromptDialog extends BaseDialog {
         return promptDialog;
     }
 
-    private EventBus mEventBus;
-    private DialogHelper mDialogHelper;
+    protected EventBus mEventBus;
+    protected DialogHelper mDialogHelper;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public final void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mEventBus = EventBus.getDefault();
         mDialogHelper = new DialogHelper(requireActivity().getSupportFragmentManager());
@@ -48,7 +45,7 @@ public class PromptDialog extends BaseDialog {
 
     @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public final Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() == null) {
             throw new IllegalStateException("arguments mustn't be null");
         }
@@ -61,20 +58,20 @@ public class PromptDialog extends BaseDialog {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        positiveButtonClicked();
+                        onPositiveButtonClicked();
                     }
                 },
                 getArguments().getString(ARG_NEGATIVE_BUTTON_CAPTION),
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        negativeButtonClicked();
+                        onNegativeButtonClicked();
                     }
                 }
         );
     }
 
-    private void positiveButtonClicked() {
+    protected void onPositiveButtonClicked() {
         dismiss();
         mEventBus.post(
                 new PromptDialogDismissedEvent(
@@ -84,7 +81,7 @@ public class PromptDialog extends BaseDialog {
         );
     }
     
-    private void negativeButtonClicked() {
+    protected void onNegativeButtonClicked() {
         dismiss();
         mEventBus.post(
                 new PromptDialogDismissedEvent(

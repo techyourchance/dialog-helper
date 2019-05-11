@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.techyourchance.dialoghelper.DialogHelper;
+import com.techyourchance.dialoghelpersample.bouncedialog.BouncePromptDialog;
 import com.techyourchance.dialoghelpersample.infodialog.InfoDialog;
 import com.techyourchance.dialoghelpersample.infodialog.InfoDialogDismissedEvent;
 import com.techyourchance.dialoghelpersample.promptdialog.PromptDialog;
@@ -22,6 +23,7 @@ public class SampleActivity extends AppCompatActivity {
     private static final String DIALOG_ID_PROMPT = "DIALOG_ID_PROMPT";
     private static final String DIALOG_ID_FIRST_IN_CHAIN = "DIALOG_ID_FIRST_IN_CHAIN";
     private static final String DIALOG_ID_SECOND_IN_CHAIN = "DIALOG_ID_SECOND_IN_CHAIN";
+    private static final String DIALOG_ID_BOUNCE = "DIALOG_ID_BOUNCE";
 
     private DialogHelper mDialogHelper;
 
@@ -34,6 +36,7 @@ public class SampleActivity extends AppCompatActivity {
 
     private AppCompatButton mBtnShowInfoDialog;
     private AppCompatButton mBtnShowPromptDialog;
+    private AppCompatButton mBtnShowBouncePromptDialog;
     private AppCompatButton mBtnShowDialogsChain;
 
     @Override
@@ -48,6 +51,7 @@ public class SampleActivity extends AppCompatActivity {
         mBtnShowInfoDialog = findViewById(R.id.btn_show_info_dialog);
         mBtnShowPromptDialog = findViewById(R.id.btn_show_prompt_dialog);
         mBtnShowDialogsChain = findViewById(R.id.btn_show_dialogs_chain);
+        mBtnShowBouncePromptDialog = findViewById(R.id.btn_show_bounce_prompt_dialog);
 
         registerButtonListeners();
     }
@@ -94,6 +98,14 @@ public class SampleActivity extends AppCompatActivity {
                 promptDialog.setEnterAnimation(DialogEnterAnimation.SLIDE_IN_FROM_RIGHT);
                 promptDialog.setExitAnimation(DialogExitAnimation.SLIDE_OUT_FROM_LEFT);
                 mDialogHelper.showDialog(promptDialog, DIALOG_ID_FIRST_IN_CHAIN);
+            }
+        });
+
+        mBtnShowBouncePromptDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BouncePromptDialog bouncePromptDialog = BouncePromptDialog.newBouncePromptDialog();
+                mDialogHelper.showDialog(bouncePromptDialog, DIALOG_ID_BOUNCE);
             }
         });
     }
@@ -143,6 +155,9 @@ public class SampleActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(this, "Dialogs chain cancelled", Toast.LENGTH_LONG).show();
                 }
+                break;
+            case DIALOG_ID_BOUNCE:
+                Toast.makeText(this, "Don't forget to try another option as well", Toast.LENGTH_LONG).show();
                 break;
         }
     }

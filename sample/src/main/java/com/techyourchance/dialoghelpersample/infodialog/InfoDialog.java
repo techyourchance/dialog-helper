@@ -1,12 +1,9 @@
 package com.techyourchance.dialoghelpersample.infodialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.view.View;
 
 import com.techyourchance.dialoghelper.DialogHelper;
@@ -20,9 +17,9 @@ import org.greenrobot.eventbus.EventBus;
  */
 public class InfoDialog extends BaseDialog {
 
-    private static final String ARG_TITLE = "ARG_TITLE";
-    private static final String ARG_MESSAGE = "ARG_MESSAGE";
-    private static final String ARG_BUTTON_CAPTION = "ARG_BUTTON_CAPTION";
+    protected static final String ARG_TITLE = "ARG_TITLE";
+    protected static final String ARG_MESSAGE = "ARG_MESSAGE";
+    protected static final String ARG_BUTTON_CAPTION = "ARG_BUTTON_CAPTION";
 
     public static InfoDialog newInfoDialog(String title, String message, String buttonCaption) {
         InfoDialog infoDialog = new InfoDialog();
@@ -34,11 +31,11 @@ public class InfoDialog extends BaseDialog {
         return infoDialog;
     }
 
-    private EventBus mEventBus;
-    private DialogHelper mDialogHelper;
+    protected EventBus mEventBus;
+    protected DialogHelper mDialogHelper;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public final void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mEventBus = EventBus.getDefault();
         mDialogHelper = new DialogHelper(requireActivity().getSupportFragmentManager());
@@ -46,7 +43,7 @@ public class InfoDialog extends BaseDialog {
 
     @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public final Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() == null) {
             throw new IllegalStateException("arguments mustn't be null");
         }
@@ -59,7 +56,7 @@ public class InfoDialog extends BaseDialog {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        dismiss();
+                        onButtonClicked();
                     }
                 },
                 null,
@@ -67,9 +64,8 @@ public class InfoDialog extends BaseDialog {
         );
     }
 
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        super.onDismiss(dialog);
+    protected void onButtonClicked() {
+        dismiss();
         mEventBus.post(new InfoDialogDismissedEvent(mDialogHelper.getDialogId(this)));
     }
 

@@ -5,8 +5,6 @@ import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,6 +12,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.BounceInterpolator;
 
 public abstract class BaseDialog extends DialogFragment {
 
@@ -24,11 +23,9 @@ public abstract class BaseDialog extends DialogFragment {
     private static final String SAVED_STATE_ENTER_ANIMATION = "SAVED_STATE_ENTER_ANIMATION";
     private static final String SAVED_STATE_EXIT_ANIMATION = "SAVED_STATE_EXIT_ANIMATION";
 
-    private static final String COLOR_TRANSPARENT_HEX = "#00000000";
-
     private DialogAnimatorsFactory mDialogAnimatorsFactory;
 
-    private boolean firstOnStart = true;
+    protected boolean mFirstOnStart = true;
 
     private @Nullable DialogEnterAnimation mEnterAnimation;
     private int mEnterAnimationDurationMs = DEFAULT_ENTER_ANIMATION_DURATION_MS;
@@ -36,7 +33,7 @@ public abstract class BaseDialog extends DialogFragment {
     private @Nullable DialogExitAnimation mExitAnimation;
     private int mExitAnimationDurationMs = DEFAULT_EXIT_ANIMATION_DURATION_MS;
 
-    private boolean playingExitAnimation;
+    protected boolean mPlayingExitAnimation;
 
     private @Nullable AlertDialog mAlertDialog;
     private @Nullable View.OnClickListener mAlertDialogPositiveButtonListener;
@@ -47,7 +44,7 @@ public abstract class BaseDialog extends DialogFragment {
         super.onCreate(savedInstanceState);
         mDialogAnimatorsFactory = new DialogAnimatorsFactory();
         if (savedInstanceState != null) {
-            firstOnStart = savedInstanceState.getBoolean(SAVED_STATE_FIRST_ON_START);
+            mFirstOnStart = savedInstanceState.getBoolean(SAVED_STATE_FIRST_ON_START);
             mEnterAnimation = (DialogEnterAnimation) savedInstanceState.getSerializable(SAVED_STATE_ENTER_ANIMATION);
             mExitAnimation = (DialogExitAnimation) savedInstanceState.getSerializable(SAVED_STATE_EXIT_ANIMATION);
         }
@@ -56,22 +53,27 @@ public abstract class BaseDialog extends DialogFragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(SAVED_STATE_FIRST_ON_START, firstOnStart);
+        outState.putBoolean(SAVED_STATE_FIRST_ON_START, mFirstOnStart);
         outState.putSerializable(SAVED_STATE_ENTER_ANIMATION, mEnterAnimation);
         outState.putSerializable(SAVED_STATE_EXIT_ANIMATION, mExitAnimation);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onStart() {
+        super.onStart();
+        if (mFirstOnStart) {
 
-        executeHackToPreventSystemNavigationUiToBlink();
+            executeHackToPreventSystemNavigationUiToBlink();
 
-        // dialog fragments have white bg by default, so this is needed to support transparent dialogs
-        getDialogWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor(COLOR_TRANSPARENT_HEX)));
+            // currently cancellable dialogs not supported; see setCancellable method
+            super.setCancelable(false);
 
-        // currently cancellable dialogs not supported; see setCancellable method
-        super.setCancelable(false);
+            setAlertDialogListenersIfNeeded();
+
+            playEnterAnimationIfNeeded();
+
+            mFirstOnStart = false;
+        }
     }
 
     private void executeHackToPreventSystemNavigationUiToBlink() {
@@ -116,16 +118,6 @@ public abstract class BaseDialog extends DialogFragment {
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (firstOnStart) {
-            playEnterAnimationIfNeeded();
-            setAlertDialogListenersIfNeeded();
-            firstOnStart = false;
-        }
-    }
-
     private void playEnterAnimationIfNeeded() {
         if (mEnterAnimation == null) {
             return;
@@ -163,7 +155,7 @@ public abstract class BaseDialog extends DialogFragment {
 
     @Override
     public void dismiss() {
-        if (playingExitAnimation) {
+        if (mPlayingExitAnimation) {
             return;
         }
         playExitAnimationIfNeededWithEndRunnable(new Runnable() {
@@ -176,7 +168,7 @@ public abstract class BaseDialog extends DialogFragment {
 
     @Override
     public void dismissAllowingStateLoss() {
-        if (playingExitAnimation) {
+        if (mPlayingExitAnimation) {
             return;
         }
         playExitAnimationIfNeededWithEndRunnable(new Runnable() {
@@ -201,7 +193,7 @@ public abstract class BaseDialog extends DialogFragment {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                playingExitAnimation = false;
+                mPlayingExitAnimation = false;
                 postAnimationRunnable.run();
             }
 
@@ -213,7 +205,7 @@ public abstract class BaseDialog extends DialogFragment {
         });
 
         animator.start();
-        playingExitAnimation = true;
+        mPlayingExitAnimation = true;
     }
 
     public void setEnterAnimation(@Nullable DialogEnterAnimation enterAnimation) {
@@ -281,6 +273,15 @@ public abstract class BaseDialog extends DialogFragment {
                             0
                     );
                     break;
+                case SLIDE_IN_AND_BOUNCE_FROM_TOP:
+                    animator = ObjectAnimator.ofFloat(
+                            getDialogDecorView(),
+                            "translationY",
+                            -requireActivity().getWindow().getDecorView().getHeight(),
+                            0
+                    );
+                    animator.setInterpolator(new BounceInterpolator());
+                    break;
                 default:
                     throw new RuntimeException("unhandled enter animation: " + enterAnimation);
             }
@@ -302,6 +303,14 @@ public abstract class BaseDialog extends DialogFragment {
                             "translationX",
                             0,
                             -requireActivity().getWindow().getDecorView().getWidth()
+                    );
+                    break;
+                case SLIDE_OUT_FROM_BOTTOM:
+                    animator = ObjectAnimator.ofFloat(
+                            getDialogDecorView(),
+                            "translationY",
+                            0,
+                            requireActivity().getWindow().getDecorView().getHeight()
                     );
                     break;
                 default:

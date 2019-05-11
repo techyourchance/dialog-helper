@@ -33,6 +33,13 @@
             android:layout_marginTop="20dp"
             android:text="Show dialogs chain"/>
 
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_show_bounce_prompt_dialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Show bounce prompt dialog"/>
+
     </LinearLayout>
 
 </RelativeLayout>
