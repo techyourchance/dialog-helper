@@ -22,6 +22,14 @@ allprojects {
         google()
         jcenter()
     }
+
+    // this prevents Javadoc generation error when Android classes are referenced in
+    // lib's Javadoc
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'UTF-8')
+        options.addStringOption('charSet', 'UTF-8')
+    }
 }
 
 ext {
