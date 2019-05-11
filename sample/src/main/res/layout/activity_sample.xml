@@ -26,6 +26,13 @@
             android:layout_marginTop="20dp"
             android:text="Show prompt dialog"/>
 
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_show_dialogs_chain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Show dialogs chain"/>
+
     </LinearLayout>
 
 </RelativeLayout>

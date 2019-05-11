@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.view.View;
 
 import com.techyourchance.dialoghelper.DialogHelper;
+import com.techyourchance.dialoghelpersample.BaseDialog;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -16,7 +18,7 @@ import org.greenrobot.eventbus.EventBus;
  * A dialog that can show title and message and has a single button. Actions performed
  * in this dialog will be posted to event bus as {@link InfoDialogDismissedEvent}.
  */
-public class InfoDialog extends DialogFragment {
+public class InfoDialog extends BaseDialog {
 
     private static final String ARG_TITLE = "ARG_TITLE";
     private static final String ARG_MESSAGE = "ARG_MESSAGE";
@@ -49,21 +51,20 @@ public class InfoDialog extends DialogFragment {
             throw new IllegalStateException("arguments mustn't be null");
         }
 
-        setCancelable(true);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder
-                .setTitle(getArguments().getString(ARG_TITLE))
-                .setMessage(getArguments().getString(ARG_MESSAGE))
-                .setPositiveButton(
-                        getArguments().getString(ARG_BUTTON_CAPTION),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dismiss();
-                            }
-                        }
-                );
-        return builder.create();
+        // see BaseDialog#setAlertDialogListenersIfNeeded() method's source comments to understand why this is needed
+        return newAlertDialogWithExitAnimationSupport(
+                getArguments().getString(ARG_TITLE),
+                getArguments().getString(ARG_MESSAGE),
+                getArguments().getString(ARG_BUTTON_CAPTION),
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dismiss();
+                    }
+                },
+                null,
+                null
+        );
     }
 
     @Override

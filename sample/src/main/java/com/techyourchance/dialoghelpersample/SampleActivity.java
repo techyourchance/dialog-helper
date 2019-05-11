@@ -1,15 +1,15 @@
 package com.techyourchance.dialoghelpersample;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.techyourchance.dialoghelper.DialogHelper;
+import com.techyourchance.dialoghelpersample.infodialog.InfoDialog;
 import com.techyourchance.dialoghelpersample.infodialog.InfoDialogDismissedEvent;
+import com.techyourchance.dialoghelpersample.promptdialog.PromptDialog;
 import com.techyourchance.dialoghelpersample.promptdialog.PromptDialogDismissedEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -20,24 +20,34 @@ public class SampleActivity extends AppCompatActivity {
 
     private static final String DIALOG_ID_INFO = "DIALOG_ID_INFO";
     private static final String DIALOG_ID_PROMPT = "DIALOG_ID_PROMPT";
+    private static final String DIALOG_ID_FIRST_IN_CHAIN = "DIALOG_ID_FIRST_IN_CHAIN";
+    private static final String DIALOG_ID_SECOND_IN_CHAIN = "DIALOG_ID_SECOND_IN_CHAIN";
 
-    private DialogsManager mDialogsManager;
+    private DialogHelper mDialogHelper;
+
+    /**
+     * Event bus isn't strictly required and the communication from dialogs to other
+     * components can be implemented in multiple other ways. However, I find event buses
+     * very handy in handling this use case.
+     */
     private EventBus mEventBus;
 
     private AppCompatButton mBtnShowInfoDialog;
     private AppCompatButton mBtnShowPromptDialog;
+    private AppCompatButton mBtnShowDialogsChain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDialogsManager = new DialogsManager(new DialogHelper(getSupportFragmentManager()));
+        mDialogHelper = new DialogHelper(getSupportFragmentManager());
         mEventBus = EventBus.getDefault();
 
         setContentView(R.layout.activity_sample);
 
         mBtnShowInfoDialog = findViewById(R.id.btn_show_info_dialog);
         mBtnShowPromptDialog = findViewById(R.id.btn_show_prompt_dialog);
+        mBtnShowDialogsChain = findViewById(R.id.btn_show_dialogs_chain);
 
         registerButtonListeners();
     }
@@ -46,10 +56,12 @@ public class SampleActivity extends AppCompatActivity {
         mBtnShowInfoDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDialogsManager.showInfoDialog(
-                        "Info dialog title",
-                        "Info dialog message",
-                        "Info dialog button",
+                mDialogHelper.showDialog(
+                        InfoDialog.newInfoDialog(
+                                "Info dialog title",
+                                "Info dialog message",
+                                "Dismiss button"
+                        ),
                         DIALOG_ID_INFO
                 );
             }
@@ -58,13 +70,30 @@ public class SampleActivity extends AppCompatActivity {
         mBtnShowPromptDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDialogsManager.showPromptDialog(
-                        "Prompt dialog title",
-                        "Prompt dialog message",
-                        "Positive button",
-                        "Negative button",
+                mDialogHelper.showDialog(
+                        PromptDialog.newPromptDialog(
+                                "Prompt dialog title",
+                                "Prompt dialog message",
+                                "Positive button",
+                                "Negative button"
+                        ),
                         DIALOG_ID_PROMPT
                 );
+            }
+        });
+
+        mBtnShowDialogsChain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PromptDialog promptDialog = PromptDialog.newPromptDialog(
+                        "First dialog in chain",
+                        "Would you like to continue to the second dialog in chain?",
+                        "Continue",
+                        "Cancel"
+                );
+                promptDialog.setEnterAnimation(DialogEnterAnimation.SLIDE_IN_FROM_RIGHT);
+                promptDialog.setExitAnimation(DialogExitAnimation.SLIDE_OUT_FROM_LEFT);
+                mDialogHelper.showDialog(promptDialog, DIALOG_ID_FIRST_IN_CHAIN);
             }
         });
     }
@@ -83,17 +112,38 @@ public class SampleActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(InfoDialogDismissedEvent event) {
-        if (DIALOG_ID_INFO.equals(event.getDialogId())) {
-            Toast.makeText(this, "Info dialog dismissed", Toast.LENGTH_LONG).show();
+        switch (event.getDialogId()) {
+            case DIALOG_ID_INFO:
+                Toast.makeText(this, "Info dialog dismissed", Toast.LENGTH_LONG).show();
+                break;
+            case DIALOG_ID_SECOND_IN_CHAIN:
+                Toast.makeText(this, "Last dialog in chain dismissed", Toast.LENGTH_LONG).show();
+                break;
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(PromptDialogDismissedEvent event) {
-        if (DIALOG_ID_PROMPT.equals(event.getDialogId())) {
-            String clickedButton =
-                    event.getClickedButton() == PromptDialogDismissedEvent.ClickedButton.POSITIVE ? "positive" : "negative";
-            Toast.makeText(this, "Prompt dialog dismissed with " + clickedButton + " button click", Toast.LENGTH_LONG).show();
+        switch (event.getDialogId()) {
+            case DIALOG_ID_PROMPT:
+                String clickedButton =
+                        event.getClickedButton() == PromptDialogDismissedEvent.ClickedButton.POSITIVE ? "positive" : "negative";
+                Toast.makeText(this, "Prompt dialog dismissed with " + clickedButton + " button click", Toast.LENGTH_LONG).show();
+                break;
+            case DIALOG_ID_FIRST_IN_CHAIN:
+                if (event.getClickedButton() == PromptDialogDismissedEvent.ClickedButton.POSITIVE) {
+                    InfoDialog infoDialog = InfoDialog.newInfoDialog(
+                            "Second dialog in chain",
+                            "",
+                            "Dismiss button"
+                    );
+                    infoDialog.setEnterAnimation(DialogEnterAnimation.SLIDE_IN_FROM_RIGHT);
+                    infoDialog.setExitAnimation(DialogExitAnimation.SLIDE_OUT_FROM_LEFT);
+                    mDialogHelper.showDialog(infoDialog, DIALOG_ID_SECOND_IN_CHAIN);
+                } else {
+                    Toast.makeText(this, "Dialogs chain cancelled", Toast.LENGTH_LONG).show();
+                }
+                break;
         }
     }
 

@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.view.View;
 
 import com.techyourchance.dialoghelper.DialogHelper;
+import com.techyourchance.dialoghelpersample.BaseDialog;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -16,7 +18,7 @@ import org.greenrobot.eventbus.EventBus;
  * A dialog that can show title and message and has two buttons. Actions performed
  * in this dialog will be posted to event bus as {@link PromptDialogDismissedEvent}.
  */
-public class PromptDialog extends DialogFragment {
+public class PromptDialog extends BaseDialog {
 
     private static final String ARG_TITLE = "ARG_TITLE";
     private static final String ARG_MESSAGE = "ARG_MESSAGE";
@@ -51,30 +53,25 @@ public class PromptDialog extends DialogFragment {
             throw new IllegalStateException("arguments mustn't be null");
         }
 
-        setCancelable(false);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder
-                .setTitle(getArguments().getString(ARG_TITLE))
-                .setMessage(getArguments().getString(ARG_MESSAGE))
-                .setPositiveButton(
-                        getArguments().getString(ARG_POSITIVE_BUTTON_CAPTION),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                positiveButtonClicked();
-                            }
-                        }
-                )
-                .setNegativeButton(
-                        getArguments().getString(ARG_NEGATIVE_BUTTON_CAPTION),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                negativeButtonClicked();
-                            }
-                        })
-        ;
-        return builder.create();
+        // see BaseDialog#setAlertDialogListenersIfNeeded() method's source comments to understand why this is needed
+        return newAlertDialogWithExitAnimationSupport(
+                getArguments().getString(ARG_TITLE),
+                getArguments().getString(ARG_MESSAGE),
+                getArguments().getString(ARG_POSITIVE_BUTTON_CAPTION),
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        positiveButtonClicked();
+                    }
+                },
+                getArguments().getString(ARG_NEGATIVE_BUTTON_CAPTION),
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        negativeButtonClicked();
+                    }
+                }
+        );
     }
 
     private void positiveButtonClicked() {
