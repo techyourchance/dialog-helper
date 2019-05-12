@@ -41,14 +41,18 @@ mDialogHelper.getDialogId(this)
 DialogHelper is "lifecycle safe". This means that if you do:
 
 ```
-mDialogHelper.showDialog(MyDialogFragment.newInstance(), DIALOG_ID);
+mDialogHelper.showDialog(MyProgressDialogFragment.newInstance(), DIALOG_ID_SOME_FLOW_PROGRESS);
 ```
 
-and then your application undergoes either configuration change or full save & restore flow (i.e. process death), this check will succeed afterwards:
+and then your application undergoes either configuration change or full save & restore (i.e. process death), this check will succeed afterwards:
 
 ```
-if (DIALOG_ID.equals(mDialogHelper.getCurrentlyShownDialogId())) {
-    // dialog with id DIALOG_ID is currently shown
+@Override
+protected void onStart() {
+    super.onStart();
+    if (DIALOG_ID_SOME_FLOW_PROGRESS.equals(mDialogHelper.getCurrentlyShownDialogId())) {
+        // check the status of the flow and dismiss the dialog if the flow has already completed
+    }
 }
 ```
 
