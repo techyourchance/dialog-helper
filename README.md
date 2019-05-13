@@ -6,7 +6,7 @@ Lightweight Android library that simplifies management of DialogFragments.
 
 To use DialogHelper in your project, add this line to your Gradle dependencies configuration:
 
-```
+```gradle
 implementation 'com.techyourchance:dialoghelper:0.8.0'
 ```
 
@@ -14,25 +14,25 @@ implementation 'com.techyourchance:dialoghelper:0.8.0'
 
 Show an instance of MyDialogFragment (if another dialog is currently shown, it will be dismissed):
 
-```
+```java
 mDialogHelper.showDialog(MyDialogFragment.newInstance(), null);
 ```
 
 Show an instance of MyDialogFragment with a specific ID:
 
-```
+```java
 mDialogHelper.showDialog(MyDialogFragment.newInstance(), DIALOG_ID);
 ```
 
 Get the ID of the currently shown dialog:
 
-```
+```java
 mDialogHelper.getCurrentlyShownDialogId()
 ```
 
 Get the ID assigned to a dialog from within the dialog itself:
 
-```
+```java
 mDialogHelper.getDialogId(this)
 ``` 
 
@@ -40,13 +40,13 @@ mDialogHelper.getDialogId(this)
 
 DialogHelper is "lifecycle safe". This means that if you do:
 
-```
+```java
 mDialogHelper.showDialog(MyProgressDialogFragment.newInstance(), DIALOG_ID_SOME_FLOW_PROGRESS);
 ```
 
 and then your application undergoes either configuration change or full save & restore (i.e. process death), this check will succeed afterwards:
 
-```
+```java
 @Override
 protected void onStart() {
     super.onStart();
@@ -58,7 +58,7 @@ protected void onStart() {
 
 You can make DialogHelper a global singleton, but you don't have to. It will function properly even if you'll create dedicated instances in each Activity, Fragment, etc.:
 
-```
+```java
 @Override
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -66,7 +66,7 @@ protected void onCreate(Bundle savedInstanceState) {
 }
 ```
 
-## Importnat note
+## Important note
 
 Due to its internal implementation details, DialogHelper will function properly only if it manages all application's dialogs (i.e. you show all the dialogs using DialogHelper). Mixing DialogHelper with other approaches might result in partial loss of functionality.
 
