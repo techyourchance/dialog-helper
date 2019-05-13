@@ -8,8 +8,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
-import static com.techyourchance.dialoghelper.ObjectsUtil.requireNonNull;
-
 /**
  * Instances of this class simplify dialogs management in the application.<br>
  * You can have a single instance of this class in your application, or you can have multiple instances
@@ -38,8 +36,12 @@ public class DialogHelper {
 
     private final @NonNull FragmentManager mFragmentManager;
 
-    public DialogHelper(final @NonNull FragmentManager fragmentManager) {
-        mFragmentManager = requireNonNull(fragmentManager);
+    public DialogHelper(@NonNull FragmentManager fragmentManager) {
+        //noinspection ConstantConditions
+        if (fragmentManager == null) {
+            throw new IllegalArgumentException("FragmentManager mustn't be null");
+        }
+        mFragmentManager = fragmentManager;
     }
 
     /**
@@ -48,7 +50,7 @@ public class DialogHelper {
      * @return a reference to the currently shown dialog, or null if no dialog is shown.
      */
     public @Nullable DialogFragment getCurrentlyShownDialog() {
-        final Fragment fragmentWithDialogTag = mFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG);
+        Fragment fragmentWithDialogTag = mFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG);
         if (fragmentWithDialogTag != null
                 && DialogFragment.class.isAssignableFrom(fragmentWithDialogTag.getClass())) {
             return (DialogFragment) fragmentWithDialogTag;
@@ -64,7 +66,7 @@ public class DialogHelper {
      *         shown dialog has no id
      */
     public @Nullable String getCurrentlyShownDialogId() {
-        final DialogFragment currentlyShownDialog = getCurrentlyShownDialog();
+        DialogFragment currentlyShownDialog = getCurrentlyShownDialog();
         if (currentlyShownDialog == null) {
             return null;
         } else {
@@ -77,8 +79,11 @@ public class DialogHelper {
      * DialogHelper.
      * @return the ID of the given dialog; null if the dialog has no ID
      */
-    public @Nullable String getDialogId(final @NonNull DialogFragment dialog) {
-        requireNonNull(dialog);
+    public @Nullable String getDialogId(@NonNull DialogFragment dialog) {
+        //noinspection ConstantConditions
+        if (dialog == null) {
+            throw new IllegalArgumentException("DialogFragment mustn't be null");
+        }
 
         if (dialog.getArguments() == null ||
                 !dialog.getArguments().containsKey(ARGUMENT_DIALOG_ID)) {
@@ -92,7 +97,7 @@ public class DialogHelper {
      * Dismiss the currently shown dialog. Has no effect if no dialog is shown.
      */
     public void dismissCurrentlyShownDialog() {
-        final DialogFragment currentlyShownDialog = getCurrentlyShownDialog();
+        DialogFragment currentlyShownDialog = getCurrentlyShownDialog();
         if (currentlyShownDialog != null) {
             currentlyShownDialog.dismissAllowingStateLoss();
         }
@@ -103,21 +108,24 @@ public class DialogHelper {
      * @param dialog dialog to show
      * @param id string that uniquely identifies the dialog; can be null
      */
-    public void showDialog(final @NonNull DialogFragment dialog, final @Nullable String id) {
-        requireNonNull(dialog);
+    public void showDialog(@NonNull DialogFragment dialog, @Nullable String id) {
+        //noinspection ConstantConditions
+        if (dialog == null) {
+            throw new IllegalArgumentException("DialogFragment mustn't be null");
+        }
 
         dismissCurrentlyShownDialog();
         setId(dialog, id);
         showDialog(dialog);
     }
 
-    private void setId(final @NonNull DialogFragment dialog, final @Nullable String id) {
+    private void setId(@NonNull DialogFragment dialog, @Nullable String id) {
         Bundle args = dialog.getArguments() != null ? dialog.getArguments() : new Bundle(1);
         args.putString(ARGUMENT_DIALOG_ID, id);
         dialog.setArguments(args);
     }
 
-    private void showDialog(final @NonNull DialogFragment dialog) {
+    private void showDialog(@NonNull DialogFragment dialog) {
         mFragmentManager.beginTransaction()
                 .add(dialog, DIALOG_FRAGMENT_TAG)
                 .commitAllowingStateLoss();
