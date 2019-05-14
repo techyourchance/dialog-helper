@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentManager;
  * be preserved across both configuration change and save & restore (aka. process death),
  * as long as you show ALL your dialogs using DialogHelper.
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 @UiThread
 public class DialogHelper {
 
@@ -33,9 +34,13 @@ public class DialogHelper {
      */
     private static final String DIALOG_FRAGMENT_TAG = "com.techyourchance.dialoghelper.DIALOG_TAG";
 
-    private final FragmentManager mFragmentManager;
+    private final @NonNull FragmentManager mFragmentManager;
 
-    public DialogHelper(FragmentManager fragmentManager) {
+    public DialogHelper(@NonNull FragmentManager fragmentManager) {
+        //noinspection ConstantConditions
+        if (fragmentManager == null) {
+            throw new IllegalArgumentException("FragmentManager mustn't be null");
+        }
         mFragmentManager = fragmentManager;
     }
 
@@ -75,6 +80,11 @@ public class DialogHelper {
      * @return the ID of the given dialog; null if the dialog has no ID
      */
     public @Nullable String getDialogId(@NonNull DialogFragment dialog) {
+        //noinspection ConstantConditions
+        if (dialog == null) {
+            throw new IllegalArgumentException("DialogFragment mustn't be null");
+        }
+
         if (dialog.getArguments() == null ||
                 !dialog.getArguments().containsKey(ARGUMENT_DIALOG_ID)) {
             return null;
@@ -98,22 +108,27 @@ public class DialogHelper {
      * @param dialog dialog to show
      * @param id string that uniquely identifies the dialog; can be null
      */
-    public void showDialog(DialogFragment dialog, @Nullable String id) {
+    public void showDialog(@NonNull DialogFragment dialog, @Nullable String id) {
+        //noinspection ConstantConditions
+        if (dialog == null) {
+            throw new IllegalArgumentException("DialogFragment mustn't be null");
+        }
+
         dismissCurrentlyShownDialog();
         setId(dialog, id);
         showDialog(dialog);
     }
 
-    private void setId(DialogFragment dialog, String id) {
+    private void setId(@NonNull DialogFragment dialog, @Nullable String id) {
         Bundle args = dialog.getArguments() != null ? dialog.getArguments() : new Bundle(1);
         args.putString(ARGUMENT_DIALOG_ID, id);
         dialog.setArguments(args);
     }
 
-    private void showDialog(DialogFragment dialog) {
+    private void showDialog(@NonNull DialogFragment dialog) {
         mFragmentManager.beginTransaction()
-            .add(dialog, DIALOG_FRAGMENT_TAG)
-            .commitAllowingStateLoss();
+                .add(dialog, DIALOG_FRAGMENT_TAG)
+                .commitAllowingStateLoss();
     }
 
 }
