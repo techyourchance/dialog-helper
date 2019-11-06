@@ -4,10 +4,13 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatButton;
 import android.view.View;
+import android.widget.TextView;
 
 import com.techyourchance.dialoghelper.DialogHelper;
 import com.techyourchance.dialoghelpersample.BaseDialog;
+import com.techyourchance.dialoghelpersample.R;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -36,6 +39,11 @@ public class PromptDialog extends BaseDialog {
     protected EventBus mEventBus;
     protected DialogHelper mDialogHelper;
 
+    private TextView mTxtTitle;
+    private TextView mTxtMessage;
+    private AppCompatButton mBtnPositive;
+    private AppCompatButton mBtnNegative;
+
     @Override
     public final void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,25 +58,34 @@ public class PromptDialog extends BaseDialog {
             throw new IllegalStateException("arguments mustn't be null");
         }
 
-        // see BaseDialog#setAlertDialogListenersIfNeeded() method's source comments to understand why this is needed
-        return newAlertDialogWithExitAnimationSupport(
-                getArguments().getString(ARG_TITLE),
-                getArguments().getString(ARG_MESSAGE),
-                getArguments().getString(ARG_POSITIVE_BUTTON_CAPTION),
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onPositiveButtonClicked();
-                    }
-                },
-                getArguments().getString(ARG_NEGATIVE_BUTTON_CAPTION),
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onNegativeButtonClicked();
-                    }
-                }
-        );
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.dialog_prompt);
+
+        mTxtTitle = dialog.findViewById(R.id.txt_title);
+        mTxtMessage = dialog.findViewById(R.id.txt_message);
+        mBtnPositive = dialog.findViewById(R.id.btn_positive);
+        mBtnNegative = dialog.findViewById(R.id.btn_negative);
+
+        mTxtTitle.setText(getArguments().getString(ARG_TITLE));
+        mTxtMessage.setText(getArguments().getString(ARG_MESSAGE));
+        mBtnPositive.setText(getArguments().getString(ARG_POSITIVE_BUTTON_CAPTION));
+        mBtnNegative.setText(getArguments().getString(ARG_NEGATIVE_BUTTON_CAPTION));
+
+        mBtnPositive.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onPositiveButtonClicked();
+            }
+        });
+
+        mBtnNegative.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onNegativeButtonClicked();
+            }
+        });
+
+        return dialog;
     }
 
     protected void onPositiveButtonClicked() {
@@ -80,12 +97,12 @@ public class PromptDialog extends BaseDialog {
                 )
         );
     }
-    
+
     protected void onNegativeButtonClicked() {
         dismiss();
         mEventBus.post(
                 new PromptDialogDismissedEvent(
-                        mDialogHelper.getDialogId(this), 
+                        mDialogHelper.getDialogId(this),
                         PromptDialogDismissedEvent.ClickedButton.NEGATIVE
                 )
         );
