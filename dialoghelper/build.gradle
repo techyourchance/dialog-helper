@@ -17,7 +17,7 @@ ext {
 
     publishedGroupId = 'com.techyourchance'
     artifact = 'dialoghelper'
-    libraryVersion = '0.8.1'
+    libraryVersion = '0.9.0'
 
     libraryDescription = 'Simple library that provides common DialogFragment related functionality'
 
@@ -40,8 +40,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 3
-        versionName "0.8.1"
+        versionCode 4
+        versionName "0.9.0"
     }
 
     compileOptions {
