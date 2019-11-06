@@ -35,10 +35,6 @@ public abstract class BaseDialog extends DialogFragment {
 
     protected boolean mPlayingExitAnimation;
 
-    private @Nullable AlertDialog mAlertDialog;
-    private @Nullable View.OnClickListener mAlertDialogPositiveButtonListener;
-    private @Nullable View.OnClickListener mAlertDialogNegativeButtonListener;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,8 +63,6 @@ public abstract class BaseDialog extends DialogFragment {
 
             // currently cancellable dialogs not supported; see setCancellable method
             super.setCancelable(false);
-
-            setAlertDialogListenersIfNeeded();
 
             playEnterAnimationIfNeeded();
 
@@ -124,33 +118,6 @@ public abstract class BaseDialog extends DialogFragment {
         }
         ObjectAnimator animator = mDialogAnimatorsFactory.newEnterAnimator(mEnterAnimation, mEnterAnimationDurationMs);
         animator.start();
-    }
-
-    private void setAlertDialogListenersIfNeeded() {
-        if (AlertDialog.class.isAssignableFrom(getDialog().getClass())
-                && mAlertDialog != getDialog()) {
-            /*
-            The internal implementation of AlertDialog automatically dismisses the dialog upon click on any button. This
-            makes it impossible to animate AlertDialog's decor view on dismissal using the programmatic animations
-            without a hacky workaround. This hacky workaround is enabled when the shown AlertDialog is constructed using
-            BaseDialog#newAlertDialogWithExitAnimationSupport method.
-            If we reach here, it means that AlertDialog was used without the workaround, which can lead to long debug
-            sessions of missing animations. I prefer to fail fast and enforce the workaround.
-            The alternative to this ugly workaround is to resolve back to Window#setWindowAnimations, or simply use custom Dialogs
-            instead of AlertDialog.
-            More info about this issue can be found in this article:
-            https://medium.com/tassio-auad-developer/dialogfragment-alertdialog-dismiss-automatically-on-click-button-4289d717618a
-             */
-            throw new RuntimeException(
-                    "AlertDialog must be constructed by BaseDialog#newAlertDialogWithExitAnimationSupport method; " +
-                            "please consult source code comments for more details"
-            );
-        }
-
-        if (mAlertDialog != null) {
-            mAlertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(mAlertDialogPositiveButtonListener);
-            mAlertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(mAlertDialogNegativeButtonListener);
-        }
     }
 
     @Override
@@ -212,8 +179,16 @@ public abstract class BaseDialog extends DialogFragment {
         mEnterAnimation = enterAnimation;
     }
 
+    public void setEnterAnimationDuration(int durationMs) {
+        mEnterAnimationDurationMs = durationMs;
+    }
+
     public void setExitAnimation(@Nullable DialogExitAnimation exitAnimation) {
         mExitAnimation = exitAnimation;
+    }
+
+    public void setExitAnimationDuration(int durationMs) {
+        mExitAnimationDurationMs = durationMs;
     }
 
     private Window getDialogWindow() {
@@ -227,30 +202,6 @@ public abstract class BaseDialog extends DialogFragment {
 
     private View getDialogDecorView() {
         return getDialogWindow().getDecorView();
-    }
-
-    protected AlertDialog newAlertDialogWithExitAnimationSupport(String title,
-                                                                 String message,
-                                                                 String positiveButtonCaption,
-                                                                 View.OnClickListener positiveButtonListener,
-                                                                 @Nullable String negativeButtonCaption,
-                                                                 @Nullable View.OnClickListener negativeButtonListener) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(positiveButtonCaption, null);
-
-        mAlertDialogPositiveButtonListener = positiveButtonListener;
-
-        if (negativeButtonCaption != null && negativeButtonListener != null) {
-            builder.setNegativeButton(negativeButtonCaption, null);
-            mAlertDialogNegativeButtonListener = negativeButtonListener;
-        }
-
-        mAlertDialog = builder.create();
-        return mAlertDialog;
     }
 
     /**
