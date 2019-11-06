@@ -1,12 +1,12 @@
 package com.techyourchance.dialoghelper;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 /**
  * Instances of this class simplify dialogs management in the application.<br>
@@ -49,7 +49,8 @@ public class DialogHelper {
      * DialogHelper.
      * @return a reference to the currently shown dialog, or null if no dialog is shown.
      */
-    public @Nullable DialogFragment getCurrentlyShownDialog() {
+    public @Nullable
+    DialogFragment getCurrentlyShownDialog() {
         Fragment fragmentWithDialogTag = mFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG);
         if (fragmentWithDialogTag != null
                 && DialogFragment.class.isAssignableFrom(fragmentWithDialogTag.getClass())) {
