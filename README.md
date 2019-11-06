@@ -7,7 +7,7 @@ Lightweight Android library that simplifies management of DialogFragments.
 To use DialogHelper in your project, add this line to your Gradle dependencies configuration:
 
 ```gradle
-implementation 'com.techyourchance:dialoghelper:0.8.0'
+implementation 'com.techyourchance:dialoghelper:0.9.0'
 ```
 
 ## Usage
