@@ -4,33 +4,47 @@ Lightweight Android library that simplifies management of DialogFragments.
 
 ## Install
 
-To use DialogHelper in your project, add this line to your Gradle dependencies configuration:
+To use DialogHelper in your project, make sure that you have Maven Central set up in your root `build.gradle` script:
 
-```gradle
-implementation 'com.techyourchance:dialoghelper:0.9.0'
 ```
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+```
+
+Then add DialogHelper as a dependency into your main module's (called `app` by default) `build.gradle` script:
+
+```
+dependencies {
+    implementation 'com.techyourchance:dialoghelper:1.0.0'
+}
+```
+
 
 ## Usage
 
-Show an instance of MyDialogFragment (if another dialog is currently shown, it will be dismissed):
+Show an instance of MyDialogFragment (and dismiss currently shown dialog, if exists):
 
 ```java
 mDialogHelper.showDialog(MyDialogFragment.newInstance(), null);
 ```
 
-Show an instance of MyDialogFragment with a specific ID:
+Dialogs can be given IDs. That's handy if you'll need to distinguish between mutliple dialogs at a later point in time. To show an instance of MyDialogFragment with a specific ID, just pass the ID as the second argument:
 
 ```java
 mDialogHelper.showDialog(MyDialogFragment.newInstance(), DIALOG_ID);
 ```
 
-Get the ID of the currently shown dialog:
+Then, if you need the ID of the currently shown dialog, just do:
 
 ```java
 mDialogHelper.getCurrentlyShownDialogId()
 ```
 
-Get the ID assigned to a dialog from within the dialog itself:
+If you want to get dialog's ID from within the dialog itself, you'll need to use an instance of `DialogHelper` inside that dialog:
 
 ```java
 mDialogHelper.getDialogId(this)
@@ -41,7 +55,7 @@ mDialogHelper.getDialogId(this)
 DialogHelper is "lifecycle safe". This means that if you do:
 
 ```java
-mDialogHelper.showDialog(MyProgressDialogFragment.newInstance(), DIALOG_ID_SOME_FLOW_PROGRESS);
+mDialogHelper.showDialog(MyProgressDialogFragment.newInstance(), DIALOG_ID);
 ```
 
 and then your application undergoes either configuration change or full save & restore (i.e. process death), this check will succeed afterwards:
@@ -50,7 +64,7 @@ and then your application undergoes either configuration change or full save & r
 @Override
 protected void onStart() {
     super.onStart();
-    if (DIALOG_ID_SOME_FLOW_PROGRESS.equals(mDialogHelper.getCurrentlyShownDialogId())) {
+    if (DIALOG_ID.equals(mDialogHelper.getCurrentlyShownDialogId())) {
         // check the status of the flow and dismiss the dialog if the flow has already completed
     }
 }
