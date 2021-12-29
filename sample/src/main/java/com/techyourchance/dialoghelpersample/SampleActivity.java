@@ -4,6 +4,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.techyourchance.dialoghelper.DialogHelper;
@@ -34,10 +35,11 @@ public class SampleActivity extends AppCompatActivity {
      */
     private EventBus mEventBus;
 
-    private AppCompatButton mBtnShowInfoDialog;
-    private AppCompatButton mBtnShowPromptDialog;
-    private AppCompatButton mBtnShowBouncePromptDialog;
-    private AppCompatButton mBtnShowDialogsChain;
+    private Button mBtnShowInfoDialog;
+    private Button mBtnShowPromptDialog;
+    private Button mBtnShowBouncePromptDialog;
+    private Button mBtnShowDialogsChain;
+    private Button mBtnShowDialogAndHideImmediately;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class SampleActivity extends AppCompatActivity {
         mBtnShowPromptDialog = findViewById(R.id.btn_show_prompt_dialog);
         mBtnShowDialogsChain = findViewById(R.id.btn_show_dialogs_chain);
         mBtnShowBouncePromptDialog = findViewById(R.id.btn_show_bounce_prompt_dialog);
+        mBtnShowDialogAndHideImmediately = findViewById(R.id.btn_show_dialog_and_hide_immediately);
 
         registerButtonListeners();
     }
@@ -107,6 +110,19 @@ public class SampleActivity extends AppCompatActivity {
                 BouncePromptDialog bouncePromptDialog = BouncePromptDialog.newBouncePromptDialog();
                 mDialogHelper.showDialog(bouncePromptDialog, DIALOG_ID_BOUNCE);
             }
+        });
+
+        mBtnShowDialogAndHideImmediately.setOnClickListener(view -> {
+            mDialogHelper.showDialog(
+                    InfoDialog.newInfoDialog(
+                            "Error",
+                            "If you see this dialog, then something doesn't work as expected. "
+                                    + "It should've been dismissed immediately!",
+                            "Crap!"
+                    ),
+                    null
+            );
+            mDialogHelper.dismissCurrentlyShownDialog();
         });
     }
 

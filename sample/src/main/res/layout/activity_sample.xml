@@ -13,32 +13,39 @@
         android:layout_centerInParent="true"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_show_info_dialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Show info dialog"/>
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_show_prompt_dialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Show prompt dialog"/>
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_show_dialogs_chain"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Show dialogs chain"/>
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_show_bounce_prompt_dialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Show bounce prompt dialog"/>
+
+        <Button
+            android:id="@+id/btn_show_dialog_and_hide_immediately"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Show dialog and hide immediately"/>
 
     </LinearLayout>
 

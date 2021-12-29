@@ -129,7 +129,7 @@ public class DialogHelper {
     private void showDialog(@NonNull DialogFragment dialog) {
         mFragmentManager.beginTransaction()
                 .add(dialog, DIALOG_FRAGMENT_TAG)
-                .commitAllowingStateLoss();
+                .commitNowAllowingStateLoss();
     }
 
 }
